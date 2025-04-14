@@ -1,9 +1,38 @@
-import React from 'react'
-
+"use client"; 
+import React, { useState } from 'react';
 import Image from "next/image";
 import Link from "next/link";
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const handleSubscribe = async () => {
+    setError('');
+    setMessage('');
+  
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        setMessage(data.message);
+        setEmail('');
+      } else {
+        setError(data.error || 'An error occurred during subscription.');
+      }
+    } catch (err) {
+      console.error('Subscription error:', err);
+      setError('Failed to connect to the server.');
+    }
+  };
   return (
     <div className="py-24 px-4 md:px-8 lg:px-16 xl:32 2xl:px-64 bg-gray-100 text-sm mt-24">
       {/* TOP */}
@@ -72,8 +101,10 @@ const Footer = () => {
               type="text"
               placeholder="Email address"
               className="p-4 w-3/4"
+              value={email} // Bind the input value to the 'email' state
+              onChange={(e) => setEmail(e.target.value)} // Update the 'email' state on input change
             />
-            <button className="w-1/4 bg-black text-white">JOIN</button>
+            <button className="w-1/4 bg-black text-white" onClick={handleSubscribe}>JOIN</button> {/* Call handleSubscribe on click */}
           </div>
           <span className="font-semibold">Secure Payments</span>
           <div className="flex justify-between">
